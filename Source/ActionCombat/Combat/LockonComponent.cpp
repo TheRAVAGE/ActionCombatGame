@@ -2,8 +2,14 @@
 
 
 #include "LockonComponent.h"
+
+#include "ActionCombat/Interfaces/Enemy.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+
+#include "../Interfaces/Enemy.h"
 
 // Sets default values for this component's properties
 ULockonComponent::ULockonComponent()
@@ -24,6 +30,7 @@ void ULockonComponent::BeginPlay()
 	OwnerRef = GetOwner<ACharacter>();
 	ControllerRef = GetWorld()->GetFirstPlayerController();
 	MovementComp = OwnerRef->GetCharacterMovement();
+	SpringArmComp = OwnerRef->FindComponentByClass<USpringArmComponent>();
 	
 }
 
@@ -49,6 +56,11 @@ void ULockonComponent::StartLockon(float Radius)
 	)};
 	if (!bHasFoundTargets){	return;	}
 	
+	/* Ensure if the Actor we get has the UEnemy Interface */
+	if (!OutResult.GetActor()->Implements<UEnemy>()) { return; }
+	
+	CurrentTargetActor = OutResult.GetActor();
+	
 	UE_LOG(LogTemp, Warning, TEXT("Actor Detected : %s"), 
 		*OutResult.GetActor()->GetName()
 		);
@@ -56,14 +68,58 @@ void ULockonComponent::StartLockon(float Radius)
 	ControllerRef->SetIgnoreLookInput(true);
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = true;
+	SpringArmComp->TargetOffset = FVector(0.0f, 0.0f, 100.0f);
+	
+	IEnemy::Execute_OnSelect(CurrentTargetActor);
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
 }
 
+void ULockonComponent::EndLockon()
+{
+	if (!IsValid(CurrentTargetActor) && !CurrentTargetActor->Implements<UEnemy>()) { return; }
+	IEnemy::Execute_OnDeselect(CurrentTargetActor);
+	
+	CurrentTargetActor = nullptr;
+	ControllerRef->ResetIgnoreLookInput();
+	MovementComp->bOrientRotationToMovement = true;
+	MovementComp->bUseControllerDesiredRotation = false;
+	SpringArmComp->TargetOffset = FVector::ZeroVector;
+	
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
+}
+
+void ULockonComponent::ToggleLockon(float Radius)
+{
+	if (IsValid(CurrentTargetActor))
+	{
+		EndLockon();
+	} else
+	{
+		StartLockon(Radius);
+	}
+}
 
 // Called every frame
 void ULockonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	/* Only run if we have a valid target */
+	if (!IsValid(CurrentTargetActor)) { return; }
+	FVector CurrentLocation { OwnerRef->GetActorLocation() };
+	FVector TargetLocation { CurrentTargetActor->GetActorLocation() };
+	
+	
+	/* Breaks the lockon if player moves away from the target */
+	double TargetDistance { FVector::Distance(CurrentLocation, TargetLocation) };
+	if (TargetDistance >= BreakDistance)
+	{
+		EndLockon(); 
+		return;
+	}
+	TargetLocation.Z -= 125.0f; /* Adjust for target's center mass */
+	
+	FRotator NewRotation { UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation) };
+	ControllerRef->SetControlRotation(NewRotation);
 }
 

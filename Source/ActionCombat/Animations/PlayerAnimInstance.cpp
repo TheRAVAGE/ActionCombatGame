@@ -3,7 +3,9 @@
 
 #include "PlayerAnimInstance.h"
 
-void UPlayerAnimInstance::UpdateVelocity()
+#include "KismetAnimationLibrary.h"
+
+void UPlayerAnimInstance::UpdateSpeed()
 {
 	/* Getting reference to the Pawn owning this AnimInstance */
 	APawn* PawnRef { TryGetPawnOwner() };
@@ -18,5 +20,21 @@ void UPlayerAnimInstance::UpdateVelocity()
 	/* Good Practice to explicitly mention type conversions
 	 * static_cast is used to convert Velocity.Length() to float
 	 */
-	CurrentVelocity = static_cast<float>(Velocity.Length());
+	CurrentSpeed = static_cast<float>(Velocity.Length());
+}
+
+void UPlayerAnimInstance::HandleUpdatedTarget(AActor* NewTargetActorRef)
+{
+	bIsInCombat = IsValid(NewTargetActorRef);
+}
+
+void UPlayerAnimInstance::UpdateDirection()
+{
+	APawn* PawnRef { TryGetPawnOwner() };
+	if (!IsValid(PawnRef)) { return; }
+	if (!bIsInCombat) { return; }
+	CurrentDirection = UKismetAnimationLibrary::CalculateDirection(
+		PawnRef->GetVelocity(), 
+		PawnRef->GetActorRotation()
+		);
 }
