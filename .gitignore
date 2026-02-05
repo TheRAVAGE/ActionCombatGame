@@ -6,9 +6,16 @@ Saved/
 .vscode/
 .idea/
 
-# Ignore all content except source code
-Content/**/*
-!Content/Blueprints/        # (optional) allow some blueprints if needed
+# Ignore everything under Content
+Content/**
+
+# Re-allow Content itself
+!Content/
+
+# Re-allow the Blueprints folder
+!Content/Blueprints/
+!Content/Blueprints/**
+
 
 # Ignore user-specific settings
 *.suo
