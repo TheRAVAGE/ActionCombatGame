@@ -2,6 +2,8 @@
 
 
 #include "CombatComponent.h"
+#include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -18,9 +20,7 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+	CharacterRef = GetOwner<ACharacter>();
 }
 
 
@@ -30,5 +30,27 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UCombatComponent::ComboAttack()
+{
+	if (!bCanAttack) {return;}
+	bCanAttack = false;
+	int MaxCombo{ AttackAnimations.Num() };
+	UE_LOG(LogTemp, Warning, TEXT("Combo Attack! %d / %d"), ComboCounter, MaxCombo);
+	CharacterRef->PlayAnimMontage(AttackAnimations[ComboCounter]);
+	ComboCounter++;
+	
+	ComboCounter = UKismetMathLibrary::Wrap (
+		ComboCounter, /* Value */
+		-1, /* Min [Excluded] */
+		(MaxCombo-1) /* Max [Included] */
+		);
+	
+}
+
+void UCombatComponent::HandleResetAttack()
+{
+	bCanAttack = true;
 }
 

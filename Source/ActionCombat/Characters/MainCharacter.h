@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../Interfaces/MainPlayer.h"
+#include "ActionCombat/Interfaces/Fighter.h"
 #include "MainCharacter.generated.h"
 
 class UPlayerAnimInstance;
 
 UCLASS()
-class ACTIONCOMBAT_API AMainCharacter : public ACharacter, public IMainPlayer
+class ACTIONCOMBAT_API AMainCharacter : public ACharacter, public IMainPlayer, public IFighter
 {
 	GENERATED_BODY()
 
@@ -32,4 +33,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float GetDamage() override;
 };
