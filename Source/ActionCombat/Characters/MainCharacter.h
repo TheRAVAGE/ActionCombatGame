@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../Interfaces/MainPlayer.h"
+#include "ActionCombat/Interfaces/MainPlayer.h"
 #include "ActionCombat/Interfaces/Fighter.h"
 #include "MainCharacter.generated.h"
 
@@ -18,6 +18,19 @@ class ACTIONCOMBAT_API AMainCharacter : public ACharacter, public IMainPlayer, p
 public:
 	// Sets default values for this character's properties
 	AMainCharacter();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class UStatsComponent* StatsComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class ULockonComponent* LockonComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class UBlockComponent* BlockComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class UPlayerActionsComponent* PlayerActionsComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class UTraceComponent* TraceComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	class UCombatComponent* CombatComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,4 +47,5 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual float GetDamage() override;
+	virtual bool HasenoughStamina(float StaminaCost) override;
 };

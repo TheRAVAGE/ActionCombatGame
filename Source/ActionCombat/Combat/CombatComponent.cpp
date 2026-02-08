@@ -4,6 +4,7 @@
 #include "CombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ActionCombat/Interfaces/MainPlayer.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -34,6 +35,15 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::ComboAttack()
 {
+	if (CharacterRef->Implements<UMainPlayer>())
+	{
+		IMainPlayer* IPlayerRef = Cast<IMainPlayer>(CharacterRef);
+		if (IPlayerRef && !IPlayerRef->HasenoughStamina(StaminaCost))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Not enough stamina to attack!"));
+			return;
+		}
+	}
 	if (!bCanAttack) {return;}
 	bCanAttack = false;
 	int MaxCombo{ AttackAnimations.Num() };
@@ -47,6 +57,7 @@ void UCombatComponent::ComboAttack()
 		(MaxCombo-1) /* Max [Included] */
 		);
 	
+	OnAttackPerformedDelegate.Broadcast(StaminaCost);
 }
 
 void UCombatComponent::HandleResetAttack()

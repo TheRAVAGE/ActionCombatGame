@@ -3,7 +3,16 @@
 
 #include "MainCharacter.h"
 
+#include "PlayerActionsComponent.h"
+#include "StatsComponent.h"
+#include "ActionCombat/Characters/EStats.h"
+#include "ActionCombat/Combat/BlockComponent.h"
+#include "ActionCombat/Combat/LockonComponent.h"
+#include "ActionCombat/Combat/CombatComponent.h"
+#include "ActionCombat/Combat/TraceComponent.h"
+
 #include "ActionCombat/Animations/PlayerAnimInstance.h"
+
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -11,6 +20,12 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	StatsComponent = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats Component"));
+	LockonComponent = CreateDefaultSubobject<ULockonComponent>(TEXT("Lockon Component"));
+	BlockComponent = CreateDefaultSubobject<UBlockComponent>(TEXT("Block Component"));
+	PlayerActionsComponent = CreateDefaultSubobject<UPlayerActionsComponent>(TEXT("Player Actions Component"));
+	TraceComponent = CreateDefaultSubobject<UTraceComponent>(TEXT("Trace Component"));
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
 }
 
 // Called when the game starts or when spawned
@@ -36,6 +51,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 float AMainCharacter::GetDamage()
 {
-	return 10.0f;
+	return StatsComponent->Stats[EStat::Strength];
+}
+
+bool AMainCharacter::HasenoughStamina(float StaminaCost)
+{
+	return StatsComponent->Stats[EStat::Stamina] >= StaminaCost;
 }
 
