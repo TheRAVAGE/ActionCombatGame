@@ -4,6 +4,7 @@
 #include "BossCharacter.h"
 
 #include "StatsComponent.h"
+#include "ActionCombat/Combat/CombatComponent.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -15,6 +16,7 @@ ABossCharacter::ABossCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StatsComponent = CreateDefaultSubobject<UStatsComponent>(TEXT("Stats Component"));
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
 }
 
 // Called when the game starts or when spawned
@@ -50,5 +52,26 @@ void ABossCharacter::DetectPawn(APawn* DetectedPawn, APawn* PawnToDetect)
 		TEXT("CurrentState"), 
 		EEnemyState::Range
 		);
+}
+
+float ABossCharacter::GetDamage()
+{
+	return StatsComponent->Stats[EStat::Strength];
+}
+
+void ABossCharacter::Attack()
+{
+	CombatComponent->RandomAttack();
+}
+
+float ABossCharacter::GetAnimDuration()
+{
+	// return 0.0f;
+	return CombatComponent->AnimDuration;
+}
+
+float ABossCharacter::GetMeleeRange()
+{
+	return StatsComponent->Stats[EStat::MeleeRange];
 }
 

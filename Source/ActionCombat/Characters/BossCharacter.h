@@ -7,12 +7,13 @@
 #include "../Interfaces/Enemy.h"
 
 #include "ActionCombat/Characters/EEnemyState.h"
+#include "ActionCombat/Interfaces/Fighter.h"
 #include "BossCharacter.generated.h"
 
 class UBlackboardComponent;
 
 UCLASS()
-class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy
+class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy, public IFighter
 {
 	GENERATED_BODY()
 	
@@ -27,6 +28,9 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Components")
 	class UStatsComponent* StatsComponent;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Components")
+	class UCombatComponent* CombatComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -41,4 +45,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DetectPawn(APawn* DetectedPawn, APawn* PawnToDetect);
+	
+	virtual float GetDamage() override;
+	
+	virtual void Attack() override;
+	
+	virtual float GetAnimDuration() override;
+	
+	virtual float GetMeleeRange() override;
 };
