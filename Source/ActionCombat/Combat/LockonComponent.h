@@ -41,7 +41,6 @@ protected:
 	
 	void StartLockon(float Radius = 750.0f);
 	
-	void EndLockon();
 	
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ToggleLockon(float Radius = 750.0f);
@@ -52,5 +51,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	void EndLockon();
 	
 };

@@ -14,6 +14,12 @@ UCLASS()
 class ACTIONCOMBAT_API AMainCharacter : public ACharacter, public IMainPlayer, public IFighter
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, Category="Anim Montage | Death")
+	UAnimMontage* DeathAnimaMontage;
+	
+	UPROPERTY(EditAnywhere, Category="Anim Montage | Hit")
+	UAnimMontage* HurtAnimMontage;
 
 public:
 	// Sets default values for this character's properties
@@ -48,4 +54,14 @@ public:
 
 	virtual float GetDamage() override;
 	virtual bool HasenoughStamina(float StaminaCost) override;
+	
+	UFUNCTION(BlueprintCallable, Category="Death")
+	void HandleDaeth();
+	
+	virtual void EndLockOnWithActor(AActor* ActorToUnlock) override;
+	
+	virtual bool CanTakeDamage(AActor* Opponent) override;
+	
+	UFUNCTION(BlueprintCallable, Category="Hit")
+	void PlayHurtAnim(TSubclassOf<class UCameraShakeBase> CameraShakeTemplate);
 };

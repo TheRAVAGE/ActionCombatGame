@@ -13,7 +13,7 @@ UCLASS()
 class ACTIONCOMBAT_API UPlayerAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category="Animation Properties")
 	float CurrentSpeed { 0.0f };
@@ -24,10 +24,14 @@ protected:
 	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category="Animation Properties")
 	bool bIsInCombat { false };
 	
+	
+	
 	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category="Animation Properties")
 	float CurrentDirection { 0.0f };
 	
 public:
+	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category="Animation Properties")
+	bool bIsBlocking { false };
 	
 	UFUNCTION(BlueprintCallable, Category="Animation Properties")
 	void HandleUpdatedTarget(AActor* NewTargetActorRef);

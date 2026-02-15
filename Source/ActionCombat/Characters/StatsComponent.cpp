@@ -5,6 +5,7 @@
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "ActionCombat/Interfaces/Fighter.h"
 
 // Sets default values for this component's properties
 UStatsComponent::UStatsComponent()
@@ -33,9 +34,16 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
-void UStatsComponent::ReduceHealth(float Amount)
+void UStatsComponent::ReduceHealth(float Amount, AActor* Opponent)
 {
 	if (Stats[EStat::Health] <= 0) { return; }
+	IFighter* FighterRef { GetOwner<IFighter>() };
+	if (!FighterRef->CanTakeDamage(Opponent))
+	{
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Red, TEXT("Blocked"));
+		return;
+	}
+	GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Red, TEXT("Not Blocked"));
 	Stats[EStat::Health] -= Amount;
 	Stats[EStat::Health] = UKismetMathLibrary::FClamp(
 		Stats[EStat::Health], 
@@ -43,7 +51,11 @@ void UStatsComponent::ReduceHealth(float Amount)
 		Stats[EStat::MaxHealth]
 		);
 	
-	UE_LOG(LogTemp,Warning, TEXT("Health: %f/%f"), Stats[EStat::Health], Stats[EStat::MaxHealth]);
+	OnHealthPercentUpdatedDelegate.Broadcast(GetStatPerentage(EStat::Health, EStat::MaxHealth));
+	if (Stats[EStat::Health] <= 0)
+	{
+		OnZeroHealthDelegate.Broadcast();
+	}
 }
 
 void UStatsComponent::ReduceStamina(float Amount)
@@ -65,6 +77,7 @@ void UStatsComponent::ReduceStamina(float Amount)
 		StaminaRegenDelay, /*Duration*/ 
 		FunctionInfo /*LatentInfo*/
 		);
+	OnStaminaPercentUpdatedDelegate.Broadcast(GetStatPerentage(EStat::Stamina, EStat::MaxStamina));
 }
 
 void UStatsComponent::RegenStamina()
@@ -76,10 +89,16 @@ void UStatsComponent::RegenStamina()
 		GetWorld()->GetDeltaSeconds(),	/*DeltaTime*/
 		StaminaRegenRate /*InterpSpeed*/
 	);
+	OnStaminaPercentUpdatedDelegate.Broadcast(GetStatPerentage(EStat::Stamina, EStat::MaxStamina));
 }
 
 void UStatsComponent::EnableRegenration()
 {
 	bCanRegen = true;
+}
+
+float UStatsComponent::GetStatPerentage(EStat Current, EStat Max)
+{
+	return Stats[Current] / Stats[Max];
 }
 

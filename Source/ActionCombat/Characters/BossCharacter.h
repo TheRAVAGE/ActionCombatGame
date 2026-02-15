@@ -10,6 +10,7 @@
 #include "ActionCombat/Interfaces/Fighter.h"
 #include "BossCharacter.generated.h"
 
+class AAIController;
 class UBlackboardComponent;
 
 UCLASS()
@@ -21,6 +22,10 @@ class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy, public
 	TEnumAsByte<EEnemyState> InitialState;
 	
 	UBlackboardComponent* BlackboardComponent;
+	AAIController* ControllerRef;
+	
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* DeathAnimMontage;
 
 public:
 	// Sets default values for this character's properties
@@ -53,4 +58,13 @@ public:
 	virtual float GetAnimDuration() override;
 	
 	virtual float GetMeleeRange() override;
+	
+	UFUNCTION()
+	void HandlePlayerDeath();
+	
+	UFUNCTION(BlueprintCallable)
+	void HandleDeath();
+	
+	UFUNCTION()
+	void FinishDeathAnimation();
 };

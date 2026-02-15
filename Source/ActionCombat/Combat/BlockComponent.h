@@ -6,15 +6,30 @@
 #include "Components/ActorComponent.h"
 #include "BlockComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(
+	FOnBlockSignature, /*DelegateName*/
+	UBlockComponent, /*Class that owns the delegate*/
+	OnBlockDelegate, /*Property name of the delegate*/
+	float, Cost /*Parameter type*/
+	);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONCOMBAT_API UBlockComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
+	float StaminaCost {10.0f};
+	
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* BlockAnimMontage;
 
 public:	
 	// Sets default values for this component's properties
 	UBlockComponent();
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnBlockSignature OnBlockDelegate;
 
 protected:
 	// Called when the game starts
@@ -24,5 +39,5 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	bool Check(AActor* Opponent);
 };

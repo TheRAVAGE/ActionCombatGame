@@ -23,4 +23,6 @@ class ACTIONCOMBAT_API IMainPlayer
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual bool HasenoughStamina(float StaminaCost) { return true; }
+	
+	virtual void EndLockOnWithActor(AActor* ActorToUnlock) {};
 };
